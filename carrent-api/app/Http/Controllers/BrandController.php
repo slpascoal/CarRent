@@ -12,7 +12,8 @@ class BrandController extends Controller
      */
     public function index()
     {
-        //
+        $brands = Brand::all();
+        return $brands;
     }
 
 
@@ -21,7 +22,8 @@ class BrandController extends Controller
      */
     public function store(Request $request)
     {
-        return 'POST store';
+        $brand = Brand::create($request->all());
+        return $brand;
     }
 
     /**
@@ -29,7 +31,7 @@ class BrandController extends Controller
      */
     public function show(Brand $brand)
     {
-        //
+        return $brand;
     }
 
     /**
