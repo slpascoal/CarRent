@@ -39,7 +39,8 @@ class BrandController extends Controller
      */
     public function update(Request $request, Brand $brand)
     {
-        //
+        $brand->update($request->all());
+        return $brand;
     }
 
     /**
@@ -47,6 +48,7 @@ class BrandController extends Controller
      */
     public function destroy(Brand $brand)
     {
-        //
+        $brand->delete();
+        return ['message' => 'The brand has been removed successfully!'];
     }
 }
