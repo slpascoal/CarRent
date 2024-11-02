@@ -9,4 +9,18 @@ class Brand extends Model
 {
     use HasFactory;
     protected $fillable = ['nome', 'imagem'];
+
+    public function rules () {
+        return [
+            'nome' => 'required|unique:brands',
+            'imagem' => 'required'
+        ];
+    }
+
+    public function feedback() {
+        return  [
+            'required' => 'the attribute field is required',
+            'nome.unique' => 'the brand name already exists'
+        ];
+    }
 }

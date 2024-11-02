@@ -7,13 +7,17 @@ use Illuminate\Http\Request;
 
 class BrandController extends Controller
 {
+    public function __construct(Brand $brand){
+        $this->brand = $brand;
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $brands = Brand::all();
-        return $brands;
+        $brands = $this->brand->all();
+        return response()->json($brands, 200);
     }
 
 
@@ -22,33 +26,70 @@ class BrandController extends Controller
      */
     public function store(Request $request)
     {
-        $brand = Brand::create($request->all());
-        return $brand;
+        $request->validate($this->brand->rules(), $this->brand->feedback());
+
+        $brand = $this->brand->create($request->all());
+        return response()->json($brand, 201);
     }
 
     /**
      * Display the specified resource.
+     * *
+     * @param Integer
+     * @return \Illuminate\Http\Response
      */
-    public function show(Brand $brand)
+    public function show($id)
     {
-        return $brand;
+        $brand = $this->brand->find($id);
+        if($brand === null){
+            return response()->json(['error' => 'ID does not exist'], 404);
+        }
+        return response()->json($brand, 200);
     }
 
     /**
      * Update the specified resource in storage.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param Integer
+     * @param \Illuminate\Http\Response
      */
-    public function update(Request $request, Brand $brand)
+    public function update(Request $request, $id)
     {
+        $brand = $this->brand->find($id);
+        if($brand === null){
+            return response()->json(['error' => 'ID does not exist'], 404);
+        }
+
+        if ($request->method() === 'PATCH') {
+            $dynamicRules = array();
+
+            foreach ($brand->rules() as $input => $rule) {
+                if (array_key_exists($input, $request->all())) {
+                   $dynamicRules[$input] = $rule;
+                }
+            }
+
+            $request->validate($dynamicRules, $this->brand->feedback());
+        }else{
+            $request->validate($this->brand->rules(), $this->brand->feedback());
+        }
+
         $brand->update($request->all());
-        return $brand;
+        return response()->json($brand, 200);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Brand $brand)
+    public function destroy($id)
     {
+        $brand = $this->brand->find($id);
+        if($brand === null){
+            return response()->json(['error' => 'ID does not exist'], 404);
+        }
+
         $brand->delete();
-        return ['message' => 'The brand has been removed successfully!'];
+        return response()->json(['message' => 'The brand has been removed successfully!'], 200);
     }
 }
