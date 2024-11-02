@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Brand;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facedes\Storage;
 
 class BrandController extends Controller
 {
@@ -28,7 +29,13 @@ class BrandController extends Controller
     {
         $request->validate($this->brand->rules(), $this->brand->feedback());
 
-        $brand = $this->brand->create($request->all());
+        $image = $request->file('imagem')->store('images', 'public');
+
+        $brand = $this->brand->create([
+            'nome' => $request->nome,
+            'imagem' => $image
+        ]);
+
         return response()->json($brand, 201);
     }
 
@@ -75,7 +82,17 @@ class BrandController extends Controller
             $request->validate($this->brand->rules(), $this->brand->feedback());
         }
 
-        $brand->update($request->all());
+        //remove arquivo antigo, caso um novo seja enviado
+        if ($request->file('imagem')) {
+            Storage::disk('public')->delete($brand->imagem);
+        }
+
+        $image = $request->file('imagem')->store('images', 'public');
+
+        $brand->update([
+            'nome' => $request->nome,
+            'imagem' => $image
+        ]);
         return response()->json($brand, 200);
     }
 
@@ -88,6 +105,8 @@ class BrandController extends Controller
         if($brand === null){
             return response()->json(['error' => 'ID does not exist'], 404);
         }
+
+        Storage::disk('public')->delete($brand->imagem);
 
         $brand->delete();
         return response()->json(['message' => 'The brand has been removed successfully!'], 200);
